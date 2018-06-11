@@ -1,0 +1,176 @@
+*grip.txt* Grip Wrapper for Vim
+*vim-grip*
+                        _                            _                       ~
+                 __   _(_)_ __ ___         __ _ _ __(_)_ __                  ~
+                 \ \ / / | '_ ` _ \ _____ / _` | '__| | '_ \                 ~
+                  \ V /| | | | | | |_____| (_| | |  | | |_) |                ~
+                   \_/ |_|_| |_| |_|      \__, |_|  |_| .__/                 ~
+                                           __/ |      | |                    ~
+                                          |___/       |_|                    ~
+==============================================================================
+CONTENTS                                                       *grip-contents*
+
+  1. Options....................................................|grip-options|
+  2. Commands..................................................|grip-commands|
+  3. License....................................................|grip-license|
+
+==============================================================================
+OPTIONS                                                         *grip-options*
+
+---------------------------------------                            *g:grip_on*
+This option shows whether or not grip is enabled. If you wish to disable this
+plugin, do the following:
+>
+    let g:grip_on = 0
+<
+---------------------------------------                   *g:grip_default_map*
+|vim-grip| defines some default mappings for one to use if they wish.
+|:GripStart| is set to `F2` and |:GripExport| is set to `F5`. If you do not
+want the default mappings, set this option to `0`.
+
+Defaults:
+>
+    let g:grip_default_map = 1
+
+
+    if g:grip_default_map
+        nnoremap <buffer> <silent> <F2> :silent update <bar> GripStart <cr>
+
+        if windows
+            nnoremap <buffer> <silent> <F5> :silent update <bar> GripExport
+            \ <bar> :silent ! start /min %:r.html<cr>
+        elseif linux && executable('xdg-open')
+            nnoremap <buffer> <silent> <F5> :silent update <bar> GripExport
+            \ <bar> :silent exec '!xdg-open ' . expand('%:r') . '.html &'<cr>
+        endif
+    endif
+<
+---------------------------------------          *g:grip_disable_when_no_jobs*
+When enabled, vim-grip automatically hides the commands |:GripStop|,
+|:GripList|, |:GripClean|, and |:GripGoto| when no jobs started by
+|:GripStart| are currently running. If you wish to have them visible at all
+times after the first job has started by |:GripStart|, set this option to `0`.
+
+Default:
+>
+    let g:grip_disable_when_no_jobs = 1
+<
+==============================================================================
+COMMANDS                                                       *grip-commands*
+
+---------------------------------------                           *:GripStart*
+:GripStart [File/Port]
+
+Start an asynchronous grip job. If no argument is given, the current markdown
+file in focus is chosen. If a file name is given, a grip instance for that
+file is created. Both a valid relative and absolute path are acceptable
+parameters.If a port (i.e. a positive integer) is given, the current file will
+be created at that port value. Port values start at 6419 and go up until an
+unoccupied port is found.
+
+Examples:
+>
+    :GripStart
+
+    :GripStart README.markdown
+
+    :GripStart 6419
+<
+---------------------------------------                          *:GripExport*
+:GripExport [File/Port]
+
+Export the current markdown file to a html file. If no argument is given, the
+current markdown file in focus is exported. If a file name is given, that file
+is exported. Both a valid relative and absolute path are acceptable
+parameters. If a port (i.e. a positive integer) is gen, the file corresponding
+to the grip instance at that port will be exported.
+
+Examples:
+>
+    :GripExport
+
+    :GripExport README.markdown
+
+    :GripExport 6419
+<
+---------------------------------------                            *:GripStop*
+:GripStop [File/Port]
+
+Stop an asynchronous grip job. If no argument is given, the current markdown
+file in focus is chosen. If a file name is given, a grip instance for that
+file is stopped if one exists. Both a valid relative and absolute path are
+acceptable parameters. If a port (i.e. a positive integer) is given and there
+is a job running at that port, the corresponding job stops.
+
+Examples:
+>
+    :GripStop
+
+    :GripStop README.markdown
+
+    :GripStop 6419
+<
+---------------------------------------                            *:GripList*
+:GripList
+
+List the currently running grip jobs created by |:GripStart|. For each active
+job, the port and the file corresponding to that port is shown. Only active
+jobs are visible.
+
+Example:
+>
+    :GripList
+
+    Port  File
+    6419  ~/.vim/src/vim-grip/README.markdown
+    6420  ~/.vim/src/vim-grip/LICENSE.markdown
+<
+---------------------------------------                           *:GripClean*
+:GripClean[!]
+
+
+Clean any dead grip jobs created by |:GripStart|. If [!] is appended, ALL jobs
+will stop and be cleaned up.
+
+Example 1:
+>
+    :GripList
+
+    Port  File
+    6419  ~/.vim/src/vim-grip/README.markdown
+    6420  ~/.vim/src/vim-grip/LICENSE.markdown
+
+    :GripClean
+
+    :GripList
+
+    Port  File
+    6419  ~/.vim/src/vim-grip/README.markdown
+    6420  ~/.vim/src/vim-grip/LICENSE.markdown
+<
+
+Example 2:
+>
+    :GripList
+
+    Port  File
+    6419  ~/.vim/src/vim-grip/README.markdown
+    6420  ~/.vim/src/vim-grip/LICENSE.markdown
+
+    :GripClean!
+
+    :GripList
+<
+---------------------------------------                            *:GripGoto*
+:GripGoto {Port}
+
+Goes to a file based on the corresponding active grip instance that was
+started by |:GripStart|. Where |:buffer| goes to a file based on the buffer
+number, |:GripGoto| goes to a file based on the port number. If you want to go
+to a file based on the file name, use the built-in |:edit| command.
+
+==============================================================================
+LICENSE                                                         *grip-license*
+Apache 2.0 License. Copyright © 2018 Pratik Bhusal
+
+vim:tw=78:ts=8:ft=help:norl:
