@@ -1,9 +1,10 @@
 " Start Plugin Guard {{{ ----------------------------------------------------
 if exists('g:grip_on') || !has('job') || &compatible || !executable('grip')
+    let g:grip_on = 0
     finish
 endif
 
-let g:grip_on = '1.0.0'
+let g:grip_on = '1.0.1'
 let s:keepcpo = &cpoptions
 set cpoptions&vim
 " Start Plugin Guard }}} ----------------------------------------------------

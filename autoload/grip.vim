@@ -148,10 +148,8 @@ function! s:list() abort " {{{
 endfunction " }}}
 
 function! s:goto(wanted) abort " {{{
-    let l:is_found = s:find(a:wanted, v:true)
-
-    if l:is_found
-        silent! exec 'edit ' . job_info(s:grip_instances[l:is_found]).cmd[1]
+    if a:wanted !~? '\D' && has_key(s:grip_instances, a:wanted)
+        silent! exec 'edit ' . job_info(s:grip_instances[a:wanted]).cmd[1]
     endif
 endfunction " }}}
 
