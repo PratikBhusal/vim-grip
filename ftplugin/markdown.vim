@@ -23,4 +23,7 @@ if g:grip_default_map
     endif
 endif
 
+if g:grip_auto_start
+    GripStart %:p
+endif
 " vim: set expandtab softtabstop=4 shiftwidth=4 foldmethod=marker:

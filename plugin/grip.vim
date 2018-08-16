@@ -13,6 +13,8 @@ set cpoptions&vim
 let g:grip_default_map = get(g:, 'grip_default_map', v:true)
 
 let g:grip_disable_when_no_jobs = get(g:, 'grip_disable_when_no_jobs', v:true)
+
+let g:grip_auto_start = get(g:, 'grip_auto_start', v:false)
 " Options }}} ------------------------------------------------------------------
 
 " End Plugin Guard {{{ ---------------------------------------------------------
