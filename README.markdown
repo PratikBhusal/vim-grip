@@ -198,7 +198,6 @@ FAQ
 
 Todo
 --------------------------------------------------------------------------------
-- Add vim help file documentation
 - Test plugin on MacOS
 
 License
