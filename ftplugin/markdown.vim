@@ -13,7 +13,7 @@ if g:grip_default_map
     let s:linux = has('unix') && !has('macunix') && !has('win32unix')
     let s:windows = has('win32') || has('win64')
 
-    nnoremap <buffer> <silent> <F2> :silent update <bar> GripStart  <cr>
+    nnoremap <buffer> <silent> <F2> :silent update <bar> GripStart <cr>
     if s:windows
         nnoremap <buffer> <silent> <F5> :silent update <bar> GripExport <bar>
             \ silent ! start /min %:r.html<cr>
