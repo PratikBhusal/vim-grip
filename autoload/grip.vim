@@ -1,8 +1,27 @@
-let s:grip_instances = {}
+let s:grip_disable_when_no_jobs = get(g:, 'grip_disable_when_no_jobs', v:true)
+
+let s:grip_instances = {} " Key: Port #. Value: [Filename, Grip Instance]
 let s:windows = has('win32') || has('win64')
-let s:slash = ( (exists('+shellslash') && !&shellslash) ? '\' : '/' )
+let s:slash   = ( (exists('+shellslash') && !&shellslash) ? '\' : '/' )
+
+" Lambdas need Vim 7.4.2044. However, jobs need at least vim 8. Hence, lambdas
+" should be avaliable to use.
+let s:init_grip_func = has('nvim')
+    \ ? {cmd -> jobstart(cmd)}
+    \ : {cmd -> job_start(cmd)}
+" verbose function s:init_grip_func
+let s:stop_grip_func = has('nvim')
+    \ ? {instance -> jobstop(instance)}
+    \ : {instance -> job_stop(instance)}
+let s:is_dead_grip_func = has('nvim')
+    \ ? {instance -> jobwait(instance) != [-3] }
+    \ : {instance -> job_status(instance) ==# 'dead' }
 
 function! grip#create_commands(create_extras) abort " {{{
+    function! s:port_list(ArgLead, CmdLine, CursorPos) " {{{
+        return keys(s:grip_instances)
+    endfunction " }}}
+
     command! -nargs=? -buffer -complete=file      GripStart  :call s:start(<f-args>)
     command! -nargs=? -buffer -complete=file -bar GripExport :call s:export(<f-args>)
 
@@ -15,7 +34,6 @@ function! grip#create_commands(create_extras) abort " {{{
 endfunction " }}}
 
 function! grip#delete_commands(delete_extra) abort " {{{
-    " echom 'Disable extra: ' . a:delete_extra
     if !len(s:grip_instances) && a:delete_extra
         if exists(':GripStop')
             delcommand GripStop
@@ -60,13 +78,8 @@ function! s:start(...) abort " {{{
             let l:new_port += 1
         endwhile
 
-        let s:grip_instances[l:new_port] = job_start([
-            \ 'grip',
-                \ l:path,
-                \ expand(l:new_port),
-                \ '-b',
-                \ '--quiet',
-        \ ])
+        let l:cmd = ['grip', l:path, expand(l:new_port), '-b', '--quiet']
+        let s:grip_instances[l:new_port] = [l:path, s:init_grip_func(l:cmd)]
 
         if !exists(':GripStop') || !exists(':GripClean') ||
         \  !exists(':GripList') || !exists(':GripGoto')
@@ -92,8 +105,9 @@ function! s:export(...) abort " {{{
     endtry
 
     if l:path isnot? v:null
-        silent! exec '!grip --export --quiet ' .
-        \(l:is_port ? job_info(s:grip_instances[l:path]).cmd[1] : l:path)
+        silent! exec '!grip --export --quiet' (l:is_port
+            \ ? s:grip_instances[l:path][0]
+            \ : l:path)
     endif
 
 endfunction " }}}
@@ -115,49 +129,47 @@ function! s:stop(...) abort " {{{
     let l:wanted_port = s:find(l:wanted, l:is_port)
 
     if l:wanted_port
-        call job_stop(s:grip_instances[l:wanted_port])
+        call s:stop_grip_func(s:grip_instances[l:wanted_port][1])
+
         unlet s:grip_instances[l:wanted_port]
     endif
 
-    call grip#delete_commands(g:grip_disable_when_no_jobs)
+    call grip#delete_commands(s:grip_disable_when_no_jobs)
 endfunction " }}}
 
 function! s:clean(should_clean_all) abort " {{{
-    for l:instance in keys(s:grip_instances)
+    for l:port in keys(s:grip_instances)
         if a:should_clean_all ||
-            \job_status(s:grip_instances[l:instance]) ==# 'dead'
+            \ s:is_dead_grip_func(s:grip_instances[l:port][1])
 
-            call job_stop(s:grip_instances[l:instance])
-            unlet s:grip_instances[l:instance]
+            call  s:stop_grip_func(s:grip_instances[l:port][1])
+
+            unlet s:grip_instances[l:port]
         endif
     endfor
 
-    call grip#delete_commands(g:grip_disable_when_no_jobs)
+    call grip#delete_commands(s:grip_disable_when_no_jobs)
 endfunction " }}}
 
 function! s:list() abort " {{{
+    call s:clean(v:false)
+
     if len(s:grip_instances)
         echo 'Port  File'
-        for l:instance in keys(s:grip_instances)
-            if job_status(s:grip_instances[l:instance]) !=# 'dead'
-                echo printf('%-5s %s', l:instance,
-                    \job_info(s:grip_instances[l:instance]).cmd[1])
-            endif
+        for l:port in keys(s:grip_instances)
+            echo printf('%-5s %s', l:port, s:grip_instances[l:port][0])
         endfor
     endif
 endfunction " }}}
 
 function! s:goto(wanted) abort " {{{
     if a:wanted !~? '\D' && has_key(s:grip_instances, a:wanted)
-        silent! exec 'edit ' . job_info(s:grip_instances[a:wanted]).cmd[1]
+        silent! exec 'edit' s:grip_instances[a:wanted][0]
     endif
 endfunction " }}}
 
-function! s:port_list(...) " {{{
-    return keys(s:grip_instances)
-endfunction " }}}
-
 function! s:simplify_path(file_name) abort " {{{
+    " TODO: Look att he :h simplify() and :h resolve() functions
     let l:full_path = split(expand('%:p:h'), s:slash)
 
     for l:alteration in split(a:file_name, s:slash)
@@ -176,9 +188,9 @@ endfunction " }}}
 
 function! s:find(wanted, is_port) abort " {{{
     if !a:is_port
-        for l:instance in keys(s:grip_instances)
-            if job_info(s:grip_instances[l:instance]).cmd[1] ==# a:wanted
-                return l:instance
+        for l:port in keys(s:grip_instances)
+            if s:grip_instances[l:port][0] ==# a:wanted
+                return l:port
             endif
         endfor
     endif
@@ -186,3 +198,5 @@ function! s:find(wanted, is_port) abort " {{{
     return ( ( a:is_port && has_key(s:grip_instances, a:wanted) )
             \  ? a:wanted : v:null )
 endfunction " }}}
+
+" vim: set expandtab softtabstop=4 shiftwidth=4 foldmethod=marker:

@@ -14,7 +14,7 @@ Table of Contents
 Dependencies
 --------------------------------------------------------------------------------
 - [grip](https://github.com/joeyespo/grip) working standalone
-- A version of vim with `has('job')` set to `1`
+- A version of vim with `has('job')` set to `1` or neovim
 - **Optional:** [`xdg-open`](https://www.freedesktop.org/wiki/Software/xdg-utils/)
 for Linux with a supported desktop environment
 
@@ -194,7 +194,8 @@ number. If you want to go to a file based on the file name, use the built-in
 
 FAQ
 --------------------------------------------------------------------------------
-- None (so far)
+- Does this work for neovim?
+    - Yes
 
 Todo
 --------------------------------------------------------------------------------

@@ -1,15 +1,20 @@
 " Plugin Guard {{{
 if (exists('g:grip_on') && !g:grip_on) ||
-   \    !has('job') ||
+   \    !(has('job') || exists('*jobstart()') ) ||
    \    &compatible ||
    \    !executable('grip')
+
+    let b:grip_on = 0
     finish
 endif
+let b:grip_on = '1.1.0'
+let s:keepcpo = &cpoptions
+set cpoptions&vim
 " Plugin Guard }}}
 
 call grip#create_commands(v:false)
 
-if g:grip_default_map
+if get(g:, 'grip_default_map', v:true)
     let s:linux = has('unix') && !has('macunix') && !has('win32unix')
     let s:windows = has('win32') || has('win64')
 
@@ -23,7 +28,13 @@ if g:grip_default_map
     endif
 endif
 
-if g:grip_auto_start
+if get(g:, 'grip_auto_start', v:false)
     GripStart %:p
 endif
+
+" End Plugin Guard {{{ ---------------------------------------------------------
+let &cpoptions = s:keepcpo
+unlet s:keepcpo
+" End Plugin Guard }}} ---------------------------------------------------------
+
 " vim: set expandtab softtabstop=4 shiftwidth=4 foldmethod=marker:
