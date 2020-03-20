@@ -203,7 +203,7 @@ Todo
 
 License
 --------------------------------------------------------------------------------
-Apache 2.0 License. Copyright © 2018 Pratik Bhusal
+Apache 2.0 License. Copyright © 2018-2020 Pratik Bhusal
 
 [Dein]: https://github.com/Shougo/dein.vim
 [Minpac]: https://github.com/k-takata/minpac

@@ -33,7 +33,7 @@ function! grip#create_commands(create_extras) abort " {{{
     endif
 endfunction " }}}
 
-function! grip#delete_commands(delete_extra) abort " {{{
+function! s:delete_commands(delete_extra) abort " {{{
     if !len(s:grip_instances) && a:delete_extra
         if exists(':GripStop')
             delcommand GripStop
@@ -134,7 +134,7 @@ function! s:stop(...) abort " {{{
         unlet s:grip_instances[l:wanted_port]
     endif
 
-    call grip#delete_commands(s:grip_disable_when_no_jobs)
+    call s:delete_commands(s:grip_disable_when_no_jobs)
 endfunction " }}}
 
 function! s:clean(should_clean_all) abort " {{{
@@ -148,7 +148,7 @@ function! s:clean(should_clean_all) abort " {{{
         endif
     endfor
 
-    call grip#delete_commands(s:grip_disable_when_no_jobs)
+    call s:delete_commands(s:grip_disable_when_no_jobs)
 endfunction " }}}
 
 function! s:list() abort " {{{
