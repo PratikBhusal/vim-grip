@@ -61,7 +61,7 @@ function! s:start(...) abort " {{{
         let l:path = (!a:0 || l:is_port) ? expand('%:p')
         \ : (!s:windows && a:1[0] ==# '/') ||
         \   (s:windows  && split(a:1, s:slash)[0] =~# '\u:') ? a:1
-            \ : s:simplify_path(a:1)
+            \ : resolve(a:1)
     catch /'Invalid Argument'/
         echohl ErrorMsg | echom 'Invalid Argument!' | echohl None
         finish
@@ -98,7 +98,7 @@ function! s:export(...) abort " {{{
             \ : (l:is_port) ? s:find(a:1, v:true)
                 \ : (!s:windows && a:1[0] ==# '/') ||
                 \   (s:windows  && split(a:1, s:slash)[0] =~# '\u:') ? a:1
-                    \ : s:simplify_path(a:1)
+                    \ : resolve(a:1)
     catch /'Invalid Argument'/
         echohl ErrorMsg | echom 'Invalid Argument!' | echohl None
         finish
@@ -120,7 +120,7 @@ function! s:stop(...) abort " {{{
             \ : l:is_port ||
             \   (!s:windows && a:1[0] ==# '/') ||
             \   (s:windows  && split(a:1, s:slash)[0] =~# '\u:') ? a:1
-                \ : s:simplify_path(a:1)
+                \ : resolve(a:1)
     catch /'Invalid Argument'/
         echohl ErrorMsg | echom 'Invalid Argument!' | echohl None
         finish
@@ -166,24 +166,6 @@ function! s:goto(wanted) abort " {{{
     if a:wanted !~? '\D' && has_key(s:grip_instances, a:wanted)
         silent! exec 'edit' s:grip_instances[a:wanted][0]
     endif
-endfunction " }}}
-
-function! s:simplify_path(file_name) abort " {{{
-    " TODO: Look att he :h simplify() and :h resolve() functions
-    let l:full_path = split(expand('%:p:h'), s:slash)
-
-    for l:alteration in split(a:file_name, s:slash)
-        if l:alteration ==# '..'
-            if (s:windows && len(l:full_path) == 1) || !len(l:full_path)
-                throw 'Invalid Argument'
-            endif
-            call remove(l:full_path, -1)
-        else
-            call add(l:full_path, l:alteration)
-        endif
-    endfor
-
-    return (g:windows ? '' : s:slash) . join(l:full_path, s:slash)
 endfunction " }}}
 
 function! s:find(wanted, is_port) abort " {{{
