@@ -13,9 +13,16 @@ let s:init_grip_func = has('nvim')
 let s:stop_grip_func = has('nvim')
     \ ? {instance -> jobstop(instance)}
     \ : {instance -> job_stop(instance)}
-let s:is_dead_grip_func = has('nvim')
-    \ ? {instance -> jobwait(instance) != [-3] }
-    \ : {instance -> job_status(instance) ==# 'dead' }
+
+if has('nvim')
+    function! s:is_dead_grip_func(instance) abort
+        let l:status = jobwait([a:instance], 0)[0]
+        return l:status == -3 || l:status != -1
+    endfunction
+else
+    let s:is_dead_grip_func = {instance -> job_status(instance) ==# 'dead' }
+endif
+
 
 function! grip#create_commands(create_extras) abort " {{{
     function! s:port_list(ArgLead, CmdLine, CursorPos) " {{{
