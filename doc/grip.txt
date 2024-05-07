@@ -36,12 +36,16 @@ Defaults:
     if g:grip_default_map
         nnoremap <buffer> <silent> <F2> :silent update <bar> GripStart <cr>
 
-        if windows
-            nnoremap <buffer> <silent> <F5> :silent update <bar> GripExport
-            \ <bar> :silent ! start /min %:r.html<cr>
-        elseif linux && executable('xdg-open')
-            nnoremap <buffer> <silent> <F5> :silent update <bar> GripExport
-            \ <bar> :silent exec '!xdg-open ' . expand('%:r') . '.html &'<cr>
+        let s:linux = has('linux') || (has('unix') && !has('macunix') && !has('win32unix'))
+        if linux && executable('xdg-open')
+            nnoremap <buffer> <silent> <F5> :silent update <bar> GripExport <bar>
+                \ silent exec '!xdg-open ' . expand('%:r') . '.html &'<cr>
+        elseif macOS
+            nnoremap <buffer> <silent> <F5> :silent update <bar> GripExport <bar>
+                \ silent exec '!open ' . expand('%:r') . '.html &'<cr>
+        elseif windows
+            nnoremap <buffer> <silent> <F5> :silent update <bar> GripExport <bar>
+                \ silent ! start /min %:r.html<cr>
         endif
     endif
 <

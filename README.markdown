@@ -197,10 +197,6 @@ FAQ
 - Does this work for neovim?
     - Yes
 
-Todo
---------------------------------------------------------------------------------
-- Test plugin on MacOS
-
 License
 --------------------------------------------------------------------------------
 Apache 2.0 License. Copyright © 2018-present Pratik Bhusal

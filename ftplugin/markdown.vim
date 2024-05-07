@@ -18,16 +18,21 @@ call grip#create_commands(v:false)
 " some point. Figure out how to notify people or if I should just break it in
 " some arbritrary commit.
 if get(g:, 'grip_default_map', v:false)
-    let s:linux = has('unix') && !has('macunix') && !has('win32unix')
-    let s:windows = has('win32') || has('win64')
-
     nnoremap <buffer> <silent> <F2> :silent update <bar> GripStart <cr>
-    if s:windows
-        nnoremap <buffer> <silent> <F5> :silent update <bar> GripExport <bar>
-            \ silent ! start /min %:r.html<cr>
-    elseif s:linux && executable('xdg-open')
+
+    " TODO: Support Windows Subsystem for Linux
+    "
+    " See: `:h feature-list`
+    let s:linux = has('linux') || (has('unix') && !has('macunix') && !has('win32unix'))
+    if s:linux && executable('xdg-open')
         nnoremap <buffer> <silent> <F5> :silent update <bar> GripExport <bar>
             \ silent exec '!xdg-open ' . expand('%:r') . '.html &'<cr>
+    elseif has('macunix') " macOS
+        nnoremap <buffer> <silent> <F5> :silent update <bar> GripExport <bar>
+            \ silent exec '!open ' . expand('%:r') . '.html &'<cr>
+    elseif has('win32') || has('win64') " windows (non-WSL)
+        nnoremap <buffer> <silent> <F5> :silent update <bar> GripExport <bar>
+            \ silent ! start /min %:r.html<cr>
     endif
 endif
 
