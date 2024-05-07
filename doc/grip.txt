@@ -23,14 +23,14 @@ plugin, do the following:
 >
     let g:grip_on = 0
 <
----------------------------------------                   *g:grip_default_map*
+--------------------------------------- [DEPRECATED]      *g:grip_default_map*
 |vim-grip| defines some default mappings for one to use if they wish.
-|:GripStart| is set to `F2` and |:GripExport| is set to `F5`. If you do not
-want the default mappings, set this option to `0`.
+|:GripStart| is set to `F2` and |:GripExport| is set to `F5`. If you do want
+the default mappings, set this option to `1`.
 
 Defaults:
 >
-    let g:grip_default_map = 1
+    let g:grip_default_map = 0
 
 
     if g:grip_default_map

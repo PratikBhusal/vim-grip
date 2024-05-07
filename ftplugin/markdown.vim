@@ -14,7 +14,10 @@ set cpoptions&vim
 
 call grip#create_commands(v:false)
 
-if get(g:, 'grip_default_map', v:true)
+" TODO: Because `g:grip_default_map` is deprecated, eventually remove this at
+" some point. Figure out how to notify people or if I should just break it in
+" some arbritrary commit.
+if get(g:, 'grip_default_map', v:false)
     let s:linux = has('unix') && !has('macunix') && !has('win32unix')
     let s:windows = has('win32') || has('win64')
 
