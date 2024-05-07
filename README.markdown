@@ -186,7 +186,7 @@ Port  File
 
 ### `:GripGoto {Port}`
 Goes to a file based on the corresponding active grip instance that was started
-by [`:GripStart`](#igr ipstart-fileport). Where
+by [`:GripStart`](#gripstart-fileport). Where
 [`:buffer`](https://vimhelp.appspot.com/windows.txt.html#%3Abuffer) goes to a
 file based on the buffer number, `:GripGoto` goes to a file based on the port
 number. If you want to go to a file based on the file name, use the built-in
